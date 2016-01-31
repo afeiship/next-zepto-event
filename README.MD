@@ -6,4 +6,4 @@
 ##usage:
 + nx.$(el).on
 + nx.$(el).off
-+ nx.$(el).trigger
++ nx.$(el).fire (Not the same as zepto)

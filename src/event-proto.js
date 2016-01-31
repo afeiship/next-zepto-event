@@ -61,7 +61,7 @@
           EventCore.remove(this, event, callback, selector);
         })
       },
-      trigger: function (event, args) {
+      fire: function (event, args) {
         event = (DOMUtil.isString(event) || $.isPlainObject(event)) ? $.Event(event) : EventUtil.compatible(event);
         event._args = args;
         return this.each(function () {
@@ -69,10 +69,10 @@
           if (event.type in focus && typeof this[event.type] == "function") this[event.type]();
           // items in the collection might not be DOM elements
           else if ('dispatchEvent' in this) this.dispatchEvent(event);
-          else $(this).triggerHandler(event, args)
+          else $(this).fireHandler(event, args)
         })
       },
-      triggerHandler: function (event, args) {
+      fireHandler: function (event, args) {
         var e, result;
         this.each(function (i, element) {
           e = EventUtil.createProxy(DOMUtil.isString(event) ? $.Event(event) : event);
