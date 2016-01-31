@@ -17,12 +17,14 @@
   "license": "MIT",
   "ignore": [
     "**/.*",
+    "src",
     "node_modules",
     "bower_components",
     "test",
     "tests"
   ],
-  "devDependencies": {
-    "next-js-core": "*"
+  "dependencies": {
+    "next-js-core": "*",
+    "next-dom-core": "*"
   }
 }
