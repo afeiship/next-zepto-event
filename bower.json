@@ -1,0 +1,28 @@
+{
+  "name": "next-dom-event",
+  "homepage": "https://github.com/afeiship/next-dom-event",
+  "authors": [
+    "afei"
+  ],
+  "description": "Dom event module based on next toolkit.",
+  "main": "dist/Event.js",
+  "moduleType": [
+    "node"
+  ],
+  "keywords": [
+    "event",
+    "next",
+    "toolkit"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "next-js-core": "*"
+  }
+}
