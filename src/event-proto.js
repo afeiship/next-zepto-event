@@ -3,28 +3,28 @@
   var undefined;
   var $ = nx.$;
   var EventUtil = nx.EventUtil;
-  var DOMUtil = nx.DOMUtil;
   var EventCore = nx.EventCore;
   var emptyArray = [],
     slice = emptyArray.slice;
+  var focus = {focus: 'focusin', blur: 'focusout'};
 
   var EventProto = nx.declare('nx.EventProto', {
     statics: {
       on: function (event, selector, data, callback, one) {
         var autoRemove, delegator, $this = this;
-        if (event && !DOMUtil.isString(event)) {
-          $.each(event, function (type, fn) {
+        if (event && !nx.isString(event)) {
+          nx.each(event, function (type, fn) {
             $this.on(type, selector, data, fn, one)
           });
           return $this;
         }
 
-        if (!DOMUtil.isString(selector) && !DOMUtil.isFunction(callback) && callback !== false)
+        if (!nx.isString(selector) && !nx.isFunction(callback) && callback !== false)
           callback = data, data = selector, selector = undefined;
         if (callback === undefined || data === false)
           callback = data, data = undefined;
 
-        if (callback === false) callback = EventUtil.returnFalse;
+        if (callback === false) callback = nx.returnFalse;
 
         return $this.each(function (_, element) {
           if (one) autoRemove = function (e) {
@@ -35,7 +35,7 @@
           if (selector) delegator = function (e) {
             var evt, match = $(e.target).closest(selector, element).get(0);
             if (match && match !== element) {
-              evt = $.extend(EventUtil.createProxy(e), {currentTarget: match, liveFired: element});
+              evt = nx.mix(EventUtil.createProxy(e), {currentTarget: match, liveFired: element});
               return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)))
             }
           };
@@ -45,24 +45,24 @@
       },
       off: function (event, selector, callback) {
         var $this = this;
-        if (event && !isString(event)) {
+        if (event && !nx.isString(event)) {
           $.each(event, function (type, fn) {
             $this.off(type, selector, fn)
           });
           return $this;
         }
 
-        if (!DOMUtil.isString(selector) && !DOMUtil.isFunction(callback) && callback !== false)
+        if (!nx.isString(selector) && !nx.isFunction(callback) && callback !== false)
           callback = selector, selector = undefined;
 
-        if (callback === false) callback = DOMUtil.returnFalse;
+        if (callback === false) callback = nx.returnFalse;
 
         return $this.each(function () {
           EventCore.remove(this, event, callback, selector);
         })
       },
       fire: function (event, args) {
-        event = (DOMUtil.isString(event) || $.isPlainObject(event)) ? $.Event(event) : EventUtil.compatible(event);
+        event = (nx.isString(event) || nx.isPlainObject(event)) ? $.Event(event) : EventUtil.compatible(event);
         event._args = args;
         return this.each(function () {
           // handle focus(), blur() by calling them directly
@@ -75,15 +75,15 @@
       fireHandler: function (event, args) {
         var e, result;
         this.each(function (i, element) {
-          e = EventUtil.createProxy(DOMUtil.isString(event) ? $.Event(event) : event);
+          e = EventUtil.createProxy(nx.isString(event) ? nx.Event(event) : event);
           e._args = args;
           e.target = element;
-          $.each(EventUtil.findHandlers(element, event.type || event), function (i, handler) {
+          nx.each(EventUtil.findHandlers(element, event.type || event), function (i, handler) {
             result = handler.proxy(e);
             if (e.isImmediatePropagationStopped()) return false;
           })
         });
-        return result
+        return result;
       }
     }
   });

@@ -1,6 +1,5 @@
 (function (nx, global) {
 
-  var $ = nx.$;
   var undefined;
   var EventUtil = nx.EventUtil;
   var ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$)/,
@@ -13,23 +12,34 @@
 
   var EventObject = nx.declare('nx.EventObject', {
     statics: {
+      /**
+       * @param event   (用户定义的object)
+       * @param source  (原始的事件对象event)
+       * @returns {*}
+       */
       compatible: function (event, source) {
         if (source || !event.isDefaultPrevented) {
           source || (source = event);
 
-          $.each(eventMethods, function (name, predicate) {
+          nx.each(eventMethods, function (name, predicate) {
             var sourceMethod = source[name];
             event[name] = function () {
-              this[predicate] = EventUtil.returnTrue;
+              this[predicate] = nx.returnTrue;
               return sourceMethod && sourceMethod.apply(source, arguments)
             };
-            event[predicate] = EventUtil.returnFalse
+            event[predicate] = nx.returnFalse;
           });
 
-          if (source.defaultPrevented !== undefined ? source.defaultPrevented :
-              'returnValue' in source ? source.returnValue === false :
-              source.getPreventDefault && source.getPreventDefault())
-            event.isDefaultPrevented = EventUtil.returnTrue;
+          if (
+            source.defaultPrevented !== undefined ? source.defaultPrevented :
+              (
+                'returnValue' in source ?
+                source.returnValue === false :
+                source.getPreventDefault && source.getPreventDefault()
+              )
+          ) {
+            event.isDefaultPrevented = nx.returnTrue;
+          }
         }
         return event;
       },

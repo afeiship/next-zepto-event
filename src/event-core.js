@@ -9,18 +9,21 @@
   var EventCore = nx.declare('nx.EventCore', {
     statics: {
       add: function (element, events, fn, data, selector, delegator, capture) {
-        var id = EventUtil.zid(element),
+        var id = nx.zid(element),
           set = (handlers[id] || (handlers[id] = []));
         events.split(/\s/).forEach(function (event) {
-          if (event == 'ready') return nx.ready(fn);
+          if (event == 'ready') {
+            return nx.ready(fn);
+          }
           var handler = EventUtil.parse(event);
           handler.fn = fn;
           handler.sel = selector;
           // emulate mouseenter, mouseleave
           if (handler.e in hover) fn = function (e) {
             var related = e.relatedTarget;
-            if (!related || (related !== this && !$.contains(this, related)))
+            if (!related || (related !== this && !nx.contains(this, related))) {
               return handler.fn.apply(this, arguments);
+            }
           };
           handler.del = delegator;
           var callback = delegator || fn;
@@ -29,7 +32,10 @@
             if (e.isImmediatePropagationStopped()) return;
             e.data = data;
             var result = callback.apply(element, e._args == undefined ? [e] : [e].concat(e._args));
-            if (result === false) e.preventDefault(), e.stopPropagation();
+            if (result === false) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
             return result;
           };
           handler.i = set.length;

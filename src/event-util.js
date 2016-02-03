@@ -6,11 +6,12 @@
   var focus = {focus: 'focusin', blur: 'focusout'};
   var hover = {mouseenter: 'mouseover', mouseleave: 'mouseout'};
 
+  nx.zid = function (element) {
+    return element._zid || (element._zid = _zid++);
+  };
+
   var EventUtil = nx.declare('nx.EventUtil', {
     statics: {
-      zid: function (element) {
-        return element._zid || (element._zid = _zid++);
-      },
       parse: function (event) {
         var parts = ('' + event).split('.');
         return {
@@ -20,7 +21,7 @@
       },
       findHandlers: function (element, event, fn, selector) {
         var matcher;
-        event = parse(event);
+        event = EventUtil.parse(event);
         if (event.ns) {
           matcher = EventUtil.matcherFor(event.ns);
         }
@@ -41,12 +42,6 @@
       },
       realEvent: function (type) {
         return hover[type] || (focusinSupported && focus[type]) || type
-      },
-      returnTrue: function () {
-        return true;
-      },
-      returnFalse: function () {
-        return false;
       }
     }
   });

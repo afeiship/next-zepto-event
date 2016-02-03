@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script type="text/javascript" src="../bower_components/next-js-core/dist/nx.core.js"></script>
+  <script type="text/javascript" src="../bower_components/next-dom-core/dist/next-dom-core.js"></script>
+  <script type="text/javascript" src="../dist/next-dom-event.js"></script>
+  <style type="text/css">
+    #div1 {
+      width: 100px;
+      height: 100px;
+      background: #eee;
+      -webkit-user-select: none;
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+
+<div id="div1">
+
+</div>
+
+<script type="text/javascript">
+  var $ = nx.$;
+  var $div1 = $('#div1');
+  var obj = {};
+
+
+  $div1.on('mousedown', function (evt) {
+    obj._offset = {
+      x: evt.pageX - $div1.offset().left,
+      y: evt.pageY - $div1.offset().top
+    };
+  });
+
+  $(document).on('mousemove', function (evt) {
+    if (obj._offset) {
+      $div1.css({
+        left: evt.pageX - obj._offset.x,
+        top: evt.pageY - obj._offset.y
+      })
+    }
+  });
+
+  $(document).on('mouseup', function () {
+    if (obj._offset) {
+      obj._offset = null;
+    }
+  });
+
+</script>
+
+</body>
+</html>

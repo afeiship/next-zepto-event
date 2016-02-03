@@ -18,7 +18,13 @@
         var event = document.createEvent(specialEvents[type] || 'Events'),
           bubbles = true;
         if (props) {
-          for (name in props) (name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name]);
+          for (name in props) {
+            if ('bubbles' === name) {
+              bubbles = !!props[name]
+            } else {
+              event[name] = props[name];
+            }
+          }
         }
         event.initEvent(type, bubbles, true);
         return EventUtil.compatible(event);
