@@ -1,13 +1,5 @@
 (function () {
 
-  /**
-   * <script type="text/javascript" src="event-util.js"></script>
-   <script type="text/javascript" src="event-object.js"></script>
-   <script type="text/javascript" src="event-core.js"></script>
-   <script type="text/javascript" src="event-static.js"></script>
-   <script type="text/javascript" src="event-proto.js"></script>
-   * @type {Gulp|exports|module.exports}
-   */
   var gulp = require('gulp');
   var del = require('del');
   var concat = require('gulp-concat');
@@ -24,14 +16,11 @@
 
   gulp.task('uglify', ['clean'], function () {
     gulp.src([
-        conf.src + '/event-util.js',
-        conf.src + '/event-object.js',
-        conf.src + '/event-core.js',
-        conf.src + '/event-static.js',
-        conf.src + '/event-proto.js'
+        conf.src + '/CustomEvent.js',
+        conf.src + '/Event.js'
       ])
       .pipe(concat('next-dom-event.js'))
-      .pipe(uglify())
+      //.pipe(uglify())
       //.pipe(rename({
       //  extname: '.min.js'
       //}))

@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <title>Title</title>
   <script type="text/javascript" src="../bower_components/next-js-core/dist/nx.core.js"></script>
-  <script type="text/javascript" src="./lib/zepto-zepto.js"></script>
-  <script type="text/javascript" src="./lib/zepto-event.js"></script>
+  <script type="text/javascript" src="../bower_components/next-dom-core/dist/next-dom-core.js"></script>
+  <script type="text/javascript" src="../dist/next-dom-event.js"></script>
   <style type="text/css">
     #div1 {
       width: 100px;
@@ -32,10 +32,10 @@
       console.log('item mouseleave!');
     }
   };
-//  $('#div1').on(eventMap);
+  nx.$('#div1').on(eventMap);
 
   //case 2: namespace
-  $('#div1').on('click.com.feizheng.app1',function(){
+  nx.$('#div1').on('click.com.feizheng.app1',function(){
     console.log('app1 click~');
   })
 

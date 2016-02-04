@@ -44,6 +44,12 @@
   }
 
   function matcherFor(ns) {
+    //这两个,可以保证test的时候,是同一个ns下面
+    //feizheng.com.app1
+    //feizheng.com.app1.app2
+
+    //这里实际上是一个test的算法,
+
     return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)')
   }
 
@@ -57,33 +63,41 @@
   }
 
   function add(element, events, fn, data, selector, delegator, capture) {
-    var id = zid(element), set = (handlers[id] || (handlers[id] = []))
+    var id = zid(element),
+      set = (handlers[id] || (handlers[id] = []));
     events.split(/\s/).forEach(function (event) {
-      if (event == 'ready') return $(document).ready(fn)
-      var handler = parse(event)
-      handler.fn = fn
-      handler.sel = selector
+      if (event == 'ready') return $(document).ready(fn);
+      var handler = parse(event);
+      handler.fn = fn;
+      handler.sel = selector;
       // emulate mouseenter, mouseleave
-      if (handler.e in hover) fn = function (e) {
-        var related = e.relatedTarget
-        if (!related || (related !== this && !$.contains(this, related)))
-          return handler.fn.apply(this, arguments)
+      if (handler.e in hover) {
+        fn = function (e) {
+          var related = e.relatedTarget;
+          if (!related || (related !== this && !$.contains(this, related))) {
+            return handler.fn.apply(this, arguments);
+          }
+        };
       }
-      handler.del = delegator
-      var callback = delegator || fn
+      handler.del = delegator;
+      var callback = delegator || fn;
       handler.proxy = function (e) {
-        e = compatible(e)
-        if (e.isImmediatePropagationStopped()) return
-        e.data = data
-        var result = callback.apply(element, e._args == undefined ? [e] : [e].concat(e._args))
-        if (result === false) e.preventDefault(), e.stopPropagation()
-        return result
-      }
-      handler.i = set.length
-      set.push(handler)
+        e = compatible(e);
+        if (e.isImmediatePropagationStopped()) return;
+        e.data = data;
+        var result = callback.apply(element, e._args == undefined ? [e] : [e].concat(e._args));
+        if (result === false) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        return result;
+      };
+      //记一个index便于以后寻找,findHandlers查找;
+      handler.i = set.length;
+      set.push(handler);
       if ('addEventListener' in element)
         element.addEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
-    })
+    });
   }
 
   function remove(element, events, fn, selector, capture) {
@@ -188,21 +202,97 @@
     return this
   }
 
-  $.fn.on = function (event, selector, data, callback, one) {
-    var autoRemove, delegator, $this = this
-    if (event && !isString(event)) {
-      $.each(event, function (type, fn) {
-        $this.on(type, selector, data, fn, one)
-      })
-      return $this
+  $.fn.on_byfei = function (inEvent, inOptions) {
+    var autoRemove, delegator, $this = this;
+    var options = $.extend({
+      selector: null,
+      data: null,
+      callback: $.noop,
+      one: false
+    }, inOptions);
+
+    if (inEvent && !isString(inEvent)) {
+      $.each(inEvent, function (type, fn) {
+        options.callback = fn;
+        $this.on(type, options);
+      });
+      return $this;
     }
 
-    if (!isString(selector) && !isFunction(callback) && callback !== false)
-      callback = data, data = selector, selector = undefined
-    if (callback === undefined || data === false)
-      callback = data, data = undefined
+    return $this.each(function (_, element) {
+      if (inOptions.one) {
+        options.callback = function (e) {
+          remove(element, e.type, inOptions.callback);
+          return inOptions.callback.apply(this, arguments);
+        }
+      }
 
-    if (callback === false) callback = returnFalse
+      if (options.selector) {
+        options.callback = function (e) {
+          var evt, match = $(e.target).closest(selector, element).get(0)
+          if (match && match !== element) {
+            evt = $.extend(createProxy(e), {currentTarget: match, liveFired: element})
+            return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)))
+          }
+        }
+      }
+
+      add(element, inEvent, callback, data, selector, delegator || autoRemove)
+    })
+  };
+
+  $.fn.on = function (event, selector, data, callback, one) {
+    var autoRemove, delegator, $this = this;
+
+    /**
+     * if (
+     *  isObject(event)
+     * )
+     *
+     * 就是这种情况:
+     * eventMap={
+       *  click:function(){
+       *    console.log('item click!');
+       *  },
+       *  mouseenter:function(){
+       *    console.log('item mouseenter!');
+       *  },
+       *  mouseleave:function(){
+       *    console.log('item leave!');
+       *  }
+       * }
+     *
+     */
+    if (event && !isString(event)) {
+      $.each(event, function (type, fn) {
+        $this.on(type, selector, data, fn, one);
+      });
+      return $this;
+    }
+
+    //以下3个if是处理前面4个参数的.
+    //1.第一个参数为必传,这里没有作判断
+    //2.第二个参数,有以下几种情况:
+    //a.一个string的selector
+    //b.一个function,实际上这个时候,就是callback
+    //3.data:这个,可能是undefind,或者是object
+    //4.这个有可能是false,有可能是function
+
+
+    if (!isString(selector) && !isFunction(callback) && callback !== false) {
+      callback = data;
+      data = selector;
+      selector = undefined;
+    }
+
+    if (callback === undefined || data === false) {
+      callback = data;
+      data = undefined;
+    }
+
+    if (callback === false) {
+      callback = returnFalse;
+    }
 
     return $this.each(function (_, element) {
       if (one) autoRemove = function (e) {
