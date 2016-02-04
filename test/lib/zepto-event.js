@@ -1,37 +1,34 @@
-;(function (nx, global) {
-  var $ = nx.$;
-  var document = global.document;
+//     Zepto.js
+//     (c) 2010-2016 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
+;(function ($) {
   var _zid = 1, undefined,
     slice = Array.prototype.slice,
-    isFunction = nx.isFunction,
-    isString = nx.isString,
+    isFunction = $.isFunction,
+    isString = function (obj) {
+      return typeof obj == 'string'
+    },
     handlers = {},
-    focusinSupported = 'onfocusin' in global,
+
+    focusinSupported = 'onfocusin' in window,
     focus = {focus: 'focusin', blur: 'focusout'},
-    hover = {mouseenter: 'mouseover', mouseleave: 'mouseout'};
+    hover = {mouseenter: 'mouseover', mouseleave: 'mouseout'},
+    specialEvents = {
+      click: 'MouseEvents',
+      mousedown: 'MouseEvents',
+      mousemove: 'MouseEvents',
+      mouseup: 'MouseEvents'
+    };
 
-  var specialEvents = {
-    click: 'MouseEvents',
-    mousedown: 'MouseEvents',
-    mousemove: 'MouseEvents',
-    mouseup: 'MouseEvents'
-  };
 
-  /**
-   * 产生唯一ID,这个ID会在附加在element上去
-   * @param obj
-   * @returns {number|*}
-     */
-  function zid(obj) {
-    return obj._zid || (obj._zid = _zid++)
+  function zid(element) {
+    return element._zid || (element._zid = _zid++)
   }
 
   function findHandlers(element, event, fn, selector) {
-    var matcher;
     event = parse(event);
-    if (event.ns) {
-      matcher = matcherFor(event.ns);
-    }
+    if (event.ns) var matcher = matcherFor(event.ns)
     return (handlers[zid(element)] || []).filter(function (handler) {
       return handler
         && (!event.e || handler.e == event.e)
@@ -41,66 +38,38 @@
     })
   }
 
-  /**
-   * 可以这咱形式去注册一个事件:
-   * $(el).on('click')
-   * $(el).on('click.ui')
-   *
-   * TODO:这段代码,为什么需要sort().join(' ')这段,严重不理解.
-   * @param event
-   * @returns {{e: *, ns: string}}
-     */
   function parse(event) {
-    var parts = ('' + event).split('.');
-    return {
-      e: parts[0],
-      ns: parts.slice(1).sort().join(' ')
-    };
+    var parts = ('' + event).split('.')
+    return {e: parts[0], ns: parts.slice(1).sort().join(' ')}
   }
 
   function matcherFor(ns) {
-    return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)');
+    return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)')
   }
 
-  /**
-   * 根据eventName来判断,eventCapture的类型是true还是false
-   * @param handler
-   * @param captureSetting
-   * @returns {*|boolean}
-     */
   function eventCapture(handler, captureSetting) {
-    //此方法，只针对存在事件代理的情况下才有意义
     return handler.del &&
       (!focusinSupported && (handler.e in focus)) || !!captureSetting
   }
 
   function realEvent(type) {
-    return hover[type] || (focusinSupported && focus[type]) || type;
+    return hover[type] || (focusinSupported && focus[type]) || type
   }
 
   function add(element, events, fn, data, selector, delegator, capture) {
-    var id = zid(element), set = (handlers[id] || (handlers[id] = []));
+    var id = zid(element), set = (handlers[id] || (handlers[id] = []))
     events.split(/\s/).forEach(function (event) {
-      if (event == 'ready') {
-        return $(document).ready(fn);
-      }
-      var handler = parse(event);
-      handler.fn = fn;
-      handler.sel = selector;
-
+      if (event == 'ready') return $(document).ready(fn)
+      var handler = parse(event)
+      handler.fn = fn
+      handler.sel = selector
       // emulate mouseenter, mouseleave
       if (handler.e in hover) fn = function (e) {
-        /**
-         * 这个relatedTarget只有在mouseover/out进入元素,或者离开元素时候,才会产生,其它时间为null
-         * @type {EventTarget}
-         */
-        var related = e.relatedTarget;
-
-
-        if (!related || (related !== this && !nx.contains(this, related)))
+        var related = e.relatedTarget
+        if (!related || (related !== this && !$.contains(this, related)))
           return handler.fn.apply(this, arguments)
       }
-      handler.del = delegator;
+      handler.del = delegator
       var callback = delegator || fn
       handler.proxy = function (e) {
         e = compatible(e)
@@ -319,4 +288,4 @@
     return compatible(event)
   }
 
-})(nx, nx.GLOBAL)
+})(Zepto)
