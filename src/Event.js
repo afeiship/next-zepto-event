@@ -131,7 +131,7 @@
     if (source || !event.isDefaultPrevented) {
       source || (source = event);
 
-      $.each(eventMethods, function (name, predicate) {
+      nx.each(eventMethods, function (name, predicate) {
         var sourceMethod = source[name];
         event[name] = function () {
           this[predicate] = returnTrue;
@@ -145,7 +145,7 @@
           source.getPreventDefault && source.getPreventDefault())
         event.isDefaultPrevented = returnTrue
     }
-    return event
+    return event;
   }
 
   function createProxy(event) {
@@ -153,13 +153,13 @@
     for (key in event)
       if (!ignoreProperties.test(key) && event[key] !== undefined) proxy[key] = event[key];
 
-    return compatible(proxy, event)
+    return compatible(proxy, event);
   }
 
   $.fn.on = function (event, selector, data, callback, one) {
     var autoRemove, delegator, $this = this;
     if (event && !isString(event)) {
-      $.each(event, function (type, fn) {
+      nx.each(event, function (type, fn) {
         $this.on(type, selector, data, fn, one)
       });
       return $this
@@ -181,7 +181,7 @@
       if (selector) delegator = function (e) {
         var evt, match = $(e.target).closest(selector, element).get(0);
         if (match && match !== element) {
-          evt = $.extend(createProxy(e), {currentTarget: match, liveFired: element});
+          evt = nx.mix(createProxy(e), {currentTarget: match, liveFired: element});
           return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)))
         }
       };
