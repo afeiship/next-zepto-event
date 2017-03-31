@@ -19,7 +19,7 @@
         conf.src + '/CustomEvent.js',
         conf.src + '/Event.js'
       ])
-      .pipe(concat('next-dom-event.js'))
+      .pipe(concat('next-zepto-event.js'))
       //.pipe(uglify())
       //.pipe(rename({
       //  extname: '.min.js'
